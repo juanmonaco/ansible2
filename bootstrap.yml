@@ -34,10 +34,11 @@
         state: directory
         mode: '0755'
 
-    - name: Download Docker's official GPG key
-      get_url:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        dest: /etc/apt/keyrings/docker.gpg
+    - name: Download Docker's official GPG key using curl
+      command:
+        cmd: "curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.gpg"
+      args:
+        creates: /etc/apt/keyrings/docker.gpg
 
     - name: Ensure GPG key permissions
       file:
