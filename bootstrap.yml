@@ -5,7 +5,6 @@
   tasks:
     - name: Resolve interrupted dpkg processes
       command: dpkg --configure -a
-      become: true
 
     - name: Install and enable QEMU Guest Agent
       apt:
@@ -35,8 +34,7 @@
         mode: '0755'
 
     - name: Download Docker's official GPG key
-      command:
-        cmd: "curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.gpg"
+      command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.gpg
       args:
         creates: /etc/apt/keyrings/docker.gpg
 
@@ -53,11 +51,10 @@
       notify:
         - Update APT Cache
 
-    - name: Update APT cache with allow-insecure-repositories workaround
-      command:
-        cmd: "apt-get update -o Acquire::AllowInsecureRepositories=true"
-        register: update_result
-        failed_when: update_result.rc != 0
+    - name: Update APT cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
 
     - name: Install Docker packages
       apt:
@@ -85,5 +82,5 @@
         enabled: true
 
     - name: Update APT Cache
-      command:
-        cmd: "apt-get update -o Acquire::AllowInsecureRepositories=true"
+      apt:
+        update_cache: yes
