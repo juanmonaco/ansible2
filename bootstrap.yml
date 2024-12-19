@@ -3,6 +3,9 @@
   hosts: new_hosts
   become: true
   tasks:
+    - name: Resolve interrupted dpkg processes
+      command: dpkg --configure -a
+      become: true
 
     - name: Install and enable QEMU Guest Agent
       apt:
