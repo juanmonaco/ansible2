@@ -1,0 +1,8 @@
+---
+- hosts: servers
+  become: true
+  tasks:
+    - name: Remove apache2 package
+      ansible.builtin.package:
+        name: apache2
+        state: absent
