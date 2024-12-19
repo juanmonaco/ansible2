@@ -28,6 +28,15 @@
           - gnupg
         state: present
 
+    - name: Download Docker's official GPG key
+      get_url:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      dest: /etc/apt/keyrings/docker.gpg
+
+    - name: Convert Docker's GPG key into proper format
+      command: gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+      args:
+      creates: /etc/apt/keyrings/docker.gpg
     - name: Create directory for Docker GPG key
       file:
         path: /etc/apt/keyrings
