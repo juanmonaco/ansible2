@@ -1,6 +1,6 @@
 ---
 - name: Configure Ubuntu for QEMU Guest Agent, Docker, and Folder Permissions
-  hosts: new_hosts
+  hosts: servers
   become: true
   tasks:
     - name: Resolve interrupted dpkg processes
