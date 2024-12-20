@@ -5,6 +5,7 @@
   tasks:
     - name: Resolve interrupted dpkg processes
       command: dpkg --configure -a
+      become: true
 
     - name: Install and enable QEMU Guest Agent
       apt:
@@ -21,7 +22,7 @@
 
     - name: Install dependencies
       apt:
-        name:
+        name: 
           - ca-certificates
           - curl
           - gnupg
@@ -29,28 +30,31 @@
         state: present
         update_cache: true
 
-    - name: Add Docker GPG key
-      apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
-
-    - name: Add Docker repository to apt
-      shell: |
-        . /etc/os-release
-        echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $VERSION_CODENAME stable" | tee /etc/apt/sources.list.d/docker.list
-      args:
-        executable: /bin/bash
-
-    - name: Create Docker GPG keyring directory
+    - name: Create directory for Docker GPG keyring
       file:
         path: /etc/apt/keyrings
         state: directory
         mode: '0755'
 
-    - name: Ensure Docker GPG key is in the keyring
-      command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.gpg
+    - name: Add Docker GPG key
+      command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
       args:
         creates: /etc/apt/keyrings/docker.gpg
+
+    - name: Ensure Docker GPG key permissions
+      file:
+        path: /etc/apt/keyrings/docker.gpg
+        mode: '0644'
+
+    - name: Add Docker repository to apt
+      shell: |
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu jammy stable" > /etc/apt/sources.list.d/docker.list
+      args:
+        executable: /bin/bash
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
 
     - name: Install Docker engine
       apt:
@@ -59,10 +63,10 @@
           - docker-ce-cli
           - containerd.io
         state: present
-        update_cache: true
 
     - name: Test Docker installation
       command: docker info
+      become: true
 
     - name: Create folder /home/jmonaco/persistent
       file:
